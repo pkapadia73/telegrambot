@@ -17,46 +17,47 @@ html = requests.get( url ).content
 sel = Selector( text = html )
         
     
-# chat_id = ["906332984","1101056134"]
 token = "1771550068:AAFyaWVAzp_1rIlR2JJ3mIip5fOD1IpPXgg"
 
 
-b = 'https://api.telegram.org/bot1771550068:AAFyaWVAzp_1rIlR2JJ3mIip5fOD1IpPXgg/getUpdates?offset=122028830'
+b = 'https://api.telegram.org/bot1771550068:AAFyaWVAzp_1rIlR2JJ3mIip5fOD1IpPXgg/getUpdates?offset={}'.format(update_id - 3)
 z = json.loads(requests.get(b).content)
-        
-# reply = z['result'][-1]['message']['text']                  #TCS
+
+update_id =  z['result'][-1]['update_id']
 chat_id = z['result'][-1]['message']['chat']['id']
-update_id = z['result'][-1]['update_id']       #51
-# update = z['result'][-2]['update_id']          #50
+token = '1771550068:AAFyaWVAzp_1rIlR2JJ3mIip5fOD1IpPXgg'
+message_id =  z['result'][-1]['message']['message_id']
 
-# y = stock_name.index(reply)                         #3238           
+reply = z['result'][-1]['message']['text']
+#y = stock_name.index(reply)
 
+m = 'Stock not in list'
 
 last_update_id = update_id
 
+     
+       
+while True:
+    b = 'https://api.telegram.org/bot1771550068:AAFyaWVAzp_1rIlR2JJ3mIip5fOD1IpPXgg/getUpdates?offset={}'.format(update_id - 3)
+    z = json.loads(requests.get(b).content)
+    update_id =  z['result'][-1]['update_id']
 
-while True:        
-    #CODE FOR GETTING UPDATES
-    b = 'https://api.telegram.org/bot1771550068:AAFyaWVAzp_1rIlR2JJ3mIip5fOD1IpPXgg/getUpdates?offset=122028830'  
-    z = json.loads(requests.get(b).content)    
-    update_id = z['result'][-1]['update_id']
+    
+    # while last_update_id != update_id:
     reply = z['result'][-1]['message']['text']
-              
-    #CODE FOR WEBSCRAPING
-    stock_name = sel.xpath('//span[@class="gld13 disin"]/a//text()').extract()   
-    stock_price = sel.xpath('//td[4][@align="right"]/text()').extract()
     
-    
-    
-    if last_update_id != update_id:
-        reply = z['result'][last_update_id - update_id]['message']['text']
-        y = stock_name.index(reply)
-        chat_id = z['result'][last_update_id - update_id]['message']['chat']['id']
+    chat_id = z['result'][-1]['message']['chat']['id']
+    m = ['Stock not in list']
 
-           
-        #CODE FOR SENDING MESSAGES
+    if (reply in stock_name) and (last_update_id != update_id):                
+        y = stock_name.index(reply)
         link = 'https://api.telegram.org/bot{}/sendMessage?chat_id={}&text={}'.format(token,chat_id,stock_price[y])
         requests.get(link)
-           
+        
         last_update_id += 1
-    
+        print (stock_price[y])
+        
+    elif last_update_id != update_id:               
+        link = 'https://api.telegram.org/bot{}/sendMessage?chat_id={}&text={}'.format(token,chat_id,m)
+        requests.get(link)
+        last_update_id += 1
